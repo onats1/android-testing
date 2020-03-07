@@ -35,24 +35,8 @@ import kotlinx.coroutines.withContext
  */
 class DefaultTasksRepository(private val tasksRemoteDataSource: TasksDataSource,
                              private val tasksLocalDataSource: TasksDataSource,
-                             private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO) : IDefaultTasksRepository {
+                             private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO) : TasksRepository {
 
-
-    companion object {
-        @Volatile
-        private var INSTANCE: DefaultTasksRepository? = null
-
-        fun getRepository(app: Application): DefaultTasksRepository {
-            return INSTANCE ?: synchronized(this) {
-                val database = Room.databaseBuilder(app,
-                        ToDoDatabase::class.java, "Tasks.db")
-                        .build()
-                DefaultTasksRepository(TasksRemoteDataSource, TasksLocalDataSource(database.taskDao())).also {
-                    INSTANCE = it
-                }
-            }
-        }
-    }
 
     override suspend fun getTasks(forceUpdate: Boolean): Result<List<Task>> {
         if (forceUpdate) {
